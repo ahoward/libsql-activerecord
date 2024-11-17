@@ -1,0 +1,3 @@
+.direnv
+*.db
+.DS_Store
