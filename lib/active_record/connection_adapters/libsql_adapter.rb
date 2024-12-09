@@ -70,6 +70,7 @@ module ActiveRecord
         super
         p @config
         @connection_parameters = @config.reject { |k| k == :adapter }
+        @connection_parameters[:url] = @connection_parameters[:host]
       end
 
       def connect
@@ -104,10 +105,11 @@ module ActiveRecord
           begin
             result =
               if stmt.column_count.zero?
-                stmt.execute type_casted_binds
+                @last_affected_rows = stmt.execute type_casted_binds
                 ActiveRecord::Result.empty
               else
                 rows = stmt.query(type_casted_binds)
+                @last_affected_rows = nil
                 ActiveRecord::Result.new(rows.columns, rows.to_a.map(&:values))
               end
           ensure
@@ -117,6 +119,10 @@ module ActiveRecord
         verified!
 
         result
+      end
+
+      def affected_rows(_result)
+        @last_affected_rows
       end
 
       def cast_result(result)
@@ -147,15 +153,12 @@ module ActiveRecord
       end
 
       def quoted_scope(name = nil, type: nil)
-        type =
-          case type
-          when 'BASE TABLE'
-            "'table'"
-          when 'VIEW'
-            "'view'"
-          when 'VIRTUAL TABLE'
-            "'virtual'"
-          end
+        type = {
+          'BASE_TABLE': "'table'",
+          'VIEW': "'view'",
+          'VIRTUAL TABLE': "'virtual'"
+        }[type]
+
         scope = {}
         scope[:name] = quote(name) if name
         scope[:type] = type if type
@@ -178,18 +181,14 @@ module ActiveRecord
         # Binary columns
         when /x'(.*)'/
           [::Regexp.last_match(1)].pack('H*')
-        else
-          # Anything else is blank or some function
-          # and we can't know the value of that, so return nil.
-          nil
         end
       end
 
       def extract_default_function(default_value, default)
-        default if has_default_function?(default_value, default)
+        default if default_function?(default_value, default)
       end
 
-      def has_default_function?(default_value, default)
+      def default_function?(default_value, default)
         !default_value && /\w+\(.*\)|CURRENT_TIME|CURRENT_DATE|CURRENT_TIMESTAMP|\|\|/.match?(default)
       end
 
@@ -206,7 +205,7 @@ module ActiveRecord
         return false unless INTEGER_REGEX.match?(field['type']) && field['pk'] == 1
 
         # is the primary key a single column?
-        column_definitions.one? { |c| c['pk'] > 0 }
+        column_definitions.one? { |c| c['pk'].positive? }
       end
 
       def new_column_from_field(_table_name, field, definitions)
