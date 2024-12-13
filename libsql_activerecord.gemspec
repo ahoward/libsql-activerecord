@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |spec|
   spec.name = 'libsql_activerecord'
-  spec.version = '0.0.0'
+  spec.version = '0.0.1'
   spec.authors = ['Levy A.']
   spec.email = ['levyddsa@gmail.com']
   spec.summary = 'libSQL ActiveRecord Adapter'
