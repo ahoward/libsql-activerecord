@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../lib/libsql-activerecord'
+require 'libsql-activerecord'
 require 'active_record'
 
 ActiveRecord::Base.establish_connection(adapter: 'libsql')
@@ -36,8 +36,3 @@ Product.all.each do |product|
 end
 
 p Product.all
-
-RSpec.describe do
-  it 'create, insert, select table' do
-  end
-end

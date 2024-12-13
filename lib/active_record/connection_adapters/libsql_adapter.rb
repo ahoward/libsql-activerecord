@@ -26,7 +26,7 @@ module ActiveRecord
                'active_record/connection_adapters/libsql_adapter'
     end
 
-    class LibsqlAdapter < AbstractAdapter
+    class LibsqlAdapter < AbstractAdapter # :nodoc:
       ADAPTER_NAME = 'libSQL'
 
       NATIVE_DATABASE_TYPES = {
@@ -44,15 +44,11 @@ module ActiveRecord
         json: { name: 'json' }
       }.freeze
 
-      READ_QUERY = ActiveRecord::ConnectionAdapters::AbstractAdapter.build_read_query_regexp(
-        :pragma
-      ) # :nodoc:
+      READ_QUERY = AbstractAdapter.build_read_query_regexp(:pragma)
       private_constant :READ_QUERY
 
       def write_query?(sql) # :nodoc:
         !READ_QUERY.match?(sql)
-      rescue ArgumentError # Invalid encoding
-        !READ_QUERY.match?(sql.b)
       end
 
       def native_database_types # :nodoc:
@@ -68,35 +64,26 @@ module ActiveRecord
 
       def initialize(...)
         super
-        p @config
         @connection_parameters = @config.reject { |k| k == :adapter }
         @connection_parameters[:url] = @connection_parameters[:host]
       end
 
       def connect
         @raw_connection = self.class.new_client(@connection_parameters)
-      rescue ConnectionNotEstablished => e
-        raise e.set_pool(@pool)
       end
 
       def reconnect
-        if active?
-          begin
-            @raw_connection.rollback
-          rescue StandardError
-            nil
-          end
-        else
-          connect
-        end
+        @raw_connection&.close
+        connect
       end
 
       def perform_query(
-        raw_connection, sql, _binds, type_casted_binds, prepare:,
+        raw_connection, sql, binds, type_casted_binds, prepare:,
         notification_payload:, batch: false
       )
-        p sql
-        p type_casted_binds
+        _ = prepare
+        _ = notification_payload
+        _ = binds
 
         if batch
           raw_connection.execute_batch(sql)
@@ -167,20 +154,11 @@ module ActiveRecord
 
       def extract_value_from_default(default)
         case default
-        when /^null$/i
-          nil
-        # Quoted types
-        when /^'([^|]*)'$/m
-          ::Regexp.last_match(1).gsub("''", "'")
-        # Quoted types
-        when /^"([^|]*)"$/m
-          ::Regexp.last_match(1).gsub('""', '"')
-        # Numeric types
-        when /\A-?\d+(\.\d*)?\z/
-          ::Regexp.last_match(0)
-        # Binary columns
-        when /x'(.*)'/
-          [::Regexp.last_match(1)].pack('H*')
+        when /^null$/i then nil
+        when /^'([^|]*)'$/m then::Regexp.last_match(1).gsub("''", "'")
+        when /^"([^|]*)"$/m then ::Regexp.last_match(1).gsub('""', '"')
+        when /\A-?\d+(\.\d*)?\z/ then ::Regexp.last_match(0)
+        when /x'(.*)'/ then [::Regexp.last_match(1)].pack('H*')
         end
       end
 
@@ -199,12 +177,9 @@ module ActiveRecord
         end
       end
 
-      INTEGER_REGEX = /integer/i
+      def column_the_rowid?(field, column_definitions)
+        return false unless /integer/i.match?(field['type']) && field['pk'] == 1
 
-      def is_column_the_rowid?(field, column_definitions)
-        return false unless INTEGER_REGEX.match?(field['type']) && field['pk'] == 1
-
-        # is the primary key a single column?
         column_definitions.one? { |c| c['pk'].positive? }
       end
 
@@ -222,7 +197,7 @@ module ActiveRecord
             extract_default_function(default_value, default)
           end
 
-        rowid = is_column_the_rowid?(field, definitions)
+        rowid = column_the_rowid?(field, definitions)
 
         Column.new(
           field['name'],
@@ -238,8 +213,56 @@ module ActiveRecord
       end
 
       def primary_keys(table_name) # :nodoc:
-        pks = column_definitions(table_name).select { |f| f['pk'] > 0 }
-        pks.sort_by { |f| f['pk'] }.map { |f| f['name'] }
+        column_definitions(table_name)
+          .select { |f| f['pk'].positive? }
+          .sort_by { |f| f['pk'] }
+          .map { |f| f['name'] }
+      end
+
+      def indexes(table_name)
+        internal_exec_query("PRAGMA index_list(#{quote_table_name(table_name)})", 'SCHEMA').filter_map do |row|
+          # Indexes SQLite creates implicitly for internal use start with "sqlite_".
+          # See https://www.sqlite.org/fileformat2.html#intschema
+          next if row['name'].start_with?('sqlite_')
+
+          index_sql = query_value(<<~SQL, 'SCHEMA')
+            SELECT sql
+            FROM sqlite_master
+            WHERE name = #{quote(row['name'])} AND type = 'index'
+            UNION ALL
+            SELECT sql
+            FROM sqlite_temp_master
+            WHERE name = #{quote(row['name'])} AND type = 'index'
+          SQL
+
+          %r{\bON\b\s*"?(\w+?)"?\s*\((?<expressions>.+?)\)(?:\s*WHERE\b\s*(?<where>.+))?(?:\s*/\*.*\*/)?\z}i =~ index_sql
+
+          columns = internal_exec_query("PRAGMA index_info(#{quote(row['name'])})", 'SCHEMA').map do |col|
+            col['name']
+          end
+
+          where = where.sub(%r{\s*/\*.*\*/\z}, '') if where
+          orders = {}
+
+          if columns.any?(&:nil?) # index created with an expression
+            columns = expressions
+          elsif index_sql
+            # Add info on sort order for columns (only desc order is explicitly specified,
+            # asc is the default)
+            index_sql.scan(/"(\w+)" DESC/).flatten.each do |order_column|
+              orders[order_column] = :desc
+            end # index_sql can be null in case of primary key indexes
+          end
+
+          IndexDefinition.new(
+            table_name,
+            row['name'],
+            row['unique'] != 0,
+            columns,
+            where:,
+            orders:
+          )
+        end
       end
     end
   end
