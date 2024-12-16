@@ -1,35 +1,93 @@
-# Libsql::Activerecord
+<p align="center">
+  <a href="https://tur.so/turso-activerecord">
+    <picture>
+      <img src="/.github/cover.png" alt="libSQL Ruby" />
+    </picture>
+  </a>
+  <h1 align="center">libSQL Ruby</h1>
+</p>
 
-TODO: Delete this and the text below, and describe your gem
+<p align="center">
+  Databases for all your Ruby on Rails Apps.
+</p>
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/libsql/activerecord`. To experiment with that code, run `bin/console` for an interactive prompt.
+<p align="center">
+  <a href="https://tur.so/turso-activerecord"><strong>Turso</strong></a> ·
+  <a href="https://docs.turso.tech"><strong>Docs</strong></a> ·
+  <a href="https://turso.tech/blog"><strong>Blog &amp; Tutorials</strong></a>
+</p>
 
-## Installation
+<p align="center">
+  <a href="LICENSE">
+    <picture>
+      <img src="https://img.shields.io/github/license/tursodatabase/libsql-activrecord?color=0F624B" alt="MIT License" />
+    </picture>
+  </a>
+  <a href="https://tur.so/discord-activerecord">
+    <picture>
+      <img src="https://img.shields.io/discord/933071162680958986?color=0F624B" alt="Discord" />
+    </picture>
+  </a>
+  <a href="#contributors">
+    <picture>
+      <img src="https://img.shields.io/github/contributors/tursodatabase/libsql-activerecord?color=0F624B" alt="Contributors" />
+    </picture>
+  </a>
+  <a href="/examples">
+    <picture>
+      <img src="https://img.shields.io/badge/browse-examples-0F624B" alt="Examples" />
+    </picture>
+  </a>
+</p>
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
+## Features
 
-Install the gem and add to the application's Gemfile by executing:
+- 🚆 Works with [Ruby on Rails](https://rubyonrails.org)
+- 🔌 Works offline with [Embedded Replicas](https://docs.turso.tech/features/embedded-replicas/introduction)
+- 🌎 Works with remote Turso databases
+- ✨ Works with Turso [AI & Vector Search](https://docs.turso.tech/features/ai-and-embeddings)
 
-    $ bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+> [!WARNING]
+> This SDK is currently in technical preview. <a href="https://tur.so/discord-activerecord">Join us in Discord</a> to report any issues.
 
-If bundler is not being used to manage dependencies, install the gem by executing:
+## Install
 
-    $ gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+```bash
+gem install libsql_activerecord
+```
 
-## Usage
+## Quickstart
 
-TODO: Write usage instructions here
+The example below uses Ruby on Rails with ActiveRecord:
 
-## Development
+```yml
+default:
+  adapter: libsql
+  database: db/development.sqlite3
+  timeout: 5000
 
-After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+development:
+  <<: *default
+  url: <%= ENV['DATABASE_URL'] %>
+  path: storage/embedded_replica.turso
+```
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+## Documentation
 
-## Contributing
+Visit our [official documentation](https://docs.turso.tech).
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/libsql-activerecord.
+## Support
 
-## License
+Join us [on Discord](https://tur.so/discord-activerecord) to get help using this SDK. Report security issues [via email](mailto:security@turso.tech).
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+## Contributors
+
+See the [contributing guide](CONTRIBUTING.md) to learn how to get involved.
+
+![Contributors](https://contrib.nn.ci/api?repo=tursodatabase/libsql-activerecord)
+
+<a href="https://github.com/tursodatabase/libsql-activerecord/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22">
+  <picture>
+    <img src="https://img.shields.io/github/issues-search/tursodatabase/libsql-activerecord?label=good%20first%20issue&query=label%3A%22good%20first%20issue%22%20&color=0F624B" alt="good first issue" />
+  </picture>
+</a>
