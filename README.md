@@ -4,7 +4,7 @@
       <img src="/.github/cover.png" alt="libSQL Ruby" />
     </picture>
   </a>
-  <h1 align="center">libSQL Ruby</h1>
+  <h1 align="center">libSQL ActiveRecord</h1>
 </p>
 
 <p align="center">
