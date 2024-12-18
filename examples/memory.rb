@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'libsql-activerecord'
+require 'libsql_activerecord'
 require 'active_record'
 
 ActiveRecord::Base.establish_connection(adapter: 'libsql')
