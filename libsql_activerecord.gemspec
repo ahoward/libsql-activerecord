@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |spec|
   spec.name = 'libsql_activerecord'
-  spec.version = '0.0.1'
+  spec.version = '0.0.2'
   spec.authors = ['Levy A.']
   spec.email = ['levyddsa@gmail.com']
   spec.summary = 'libSQL ActiveRecord Adapter'
@@ -15,5 +15,5 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency 'activerecord', '~> 8.0'
-  spec.add_runtime_dependency 'turso_libsql', '~> 0.1'
+  spec.add_runtime_dependency 'turso_libsql', '~> 0.2'
 end

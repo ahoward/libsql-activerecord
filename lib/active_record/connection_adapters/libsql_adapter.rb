@@ -219,6 +219,10 @@ module ActiveRecord
           .map { |f| f['name'] }
       end
 
+      def last_inserted_id(result)
+        @raw_connection.last_inserted_id
+      end
+
       def indexes(table_name)
         internal_exec_query("PRAGMA index_list(#{quote_table_name(table_name)})", 'SCHEMA').filter_map do |row|
           # Indexes SQLite creates implicitly for internal use start with "sqlite_".

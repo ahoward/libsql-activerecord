@@ -1,20 +1,20 @@
 PATH
   remote: .
   specs:
-    libsql_activerecord (0.0.1)
+    libsql_activerecord (0.0.2)
       activerecord (~> 8.0)
-      turso_libsql (~> 0.1)
+      turso_libsql (~> 0.2)
 
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (8.0.0.1)
-      activesupport (= 8.0.0.1)
-    activerecord (8.0.0.1)
-      activemodel (= 8.0.0.1)
-      activesupport (= 8.0.0.1)
+    activemodel (8.0.1)
+      activesupport (= 8.0.1)
+    activerecord (8.0.1)
+      activemodel (= 8.0.1)
+      activesupport (= 8.0.1)
       timeout (>= 0.4.0)
-    activesupport (8.0.0.1)
+    activesupport (8.0.1)
       base64
       benchmark (>= 0.3)
       bigdecimal
@@ -39,9 +39,9 @@ GEM
       concurrent-ruby (~> 1.0)
     logger (1.6.3)
     minitest (5.25.4)
-    securerandom (0.4.0)
-    timeout (0.4.2)
-    turso_libsql (0.1.2)
+    securerandom (0.4.1)
+    timeout (0.4.3)
+    turso_libsql (0.2.0)
       ffi (~> 1.17)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
