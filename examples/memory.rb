@@ -26,10 +26,10 @@ end
 CreateProducts.migrate(:up)
 AddDescription.migrate(:up)
 
-p = Product.new
-p.name = 'Book'
-p.description = 'A book about books'
-p.save
+product = Product.create
+product.name = 'Book'
+product.description = 'A book about books'
+product.save
 
 Product.all.each do |product|
   product.destroy
