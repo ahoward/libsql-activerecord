@@ -61,15 +61,15 @@ gem install libsql_activerecord
 The example below uses Ruby on Rails with ActiveRecord:
 
 ```yml
-default:
+default: &default
   adapter: libsql
-  database: db/development.sqlite3
-  timeout: 5000
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
 development:
   <<: *default
-  url: <%= ENV['DATABASE_URL'] %>
-  path: storage/embedded_replica.turso
+  url: <%= ENV['TURSO_DATABASE_URL'] %>
+  auth_token: <%= ENV['TURSO_AUTH_TOKEN'] %>
+  path: "path/to/local/replica.db"
 ```
 
 ## Documentation
