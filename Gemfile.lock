@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    libsql_activerecord (0.0.0)
+    libsql_activerecord (0.0.1)
       activerecord (~> 8.0)
       turso_libsql (~> 0.1)
 
