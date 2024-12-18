@@ -15,5 +15,5 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency 'activerecord', '~> 8.0'
-  spec.add_runtime_dependency 'turso_libsql', '~> 0.1'
+  spec.add_runtime_dependency 'turso_libsql', '~> 0.2'
 end
