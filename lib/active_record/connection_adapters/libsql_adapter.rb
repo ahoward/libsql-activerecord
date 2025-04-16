@@ -64,8 +64,85 @@ module ActiveRecord
 
       def initialize(...)
         super
-        @connection_parameters = @config.reject { |k| k == :adapter }
-        @connection_parameters[:url] = @connection_parameters[:host]
+        @connection_parameters = @config.reject { |k| k == [:adapter, :database] }
+        @connection_parameters[:url] = @connection_parameters.delete(:host)
+
+        unless @connection_parameters[:url].to_s.starts_with?('libsql://')
+          @connection_parameters[:url] = 'libsql://' + @connection_parameters[:url]
+        end
+
+        @memory_database = (@connection_parameters[:path] == ":memory:")
+      end
+
+      def database_exists?
+        @connection_parameters[:path] == ":memory:" || File.exist?(@connection_parameters[:path].to_s)
+      end
+
+      def supports_ddl_transactions?
+        true
+      end
+
+      def supports_savepoints?
+        true
+      end
+
+      def supports_transaction_isolation?
+        true
+      end
+
+      def supports_partial_index?
+        true
+      end
+
+      def supports_expression_index?
+        true
+      end
+
+      def requires_reloading?
+        true
+      end
+
+      def supports_foreign_keys?
+        true
+      end
+
+      def supports_check_constraints?
+        true
+      end
+
+      def supports_views?
+        true
+      end
+
+      def supports_datetime_with_precision?
+        true
+      end
+
+      def supports_json?
+        true
+      end
+
+      def supports_common_table_expressions?
+        true
+      end
+
+      def supports_insert_returning?
+        true
+      end
+
+      def supports_insert_on_conflict?
+        true
+      end
+      alias supports_insert_on_duplicate_skip? supports_insert_on_conflict?
+      alias supports_insert_on_duplicate_update? supports_insert_on_conflict?
+      alias supports_insert_conflict_target? supports_insert_on_conflict?
+
+      def supports_concurrent_connections?
+        !@memory_database
+      end
+
+      def supports_virtual_columns?
+        true
       end
 
       def connect
